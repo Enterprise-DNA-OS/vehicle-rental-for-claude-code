@@ -12,7 +12,7 @@ Use the routing table below. CLI syntax lives in docs/cli.md. A script refusal n
 
 Keep customer information in the operator's database. Drafts, exports and rendered documents contain personal information. Do not commit or send them. No email, card processing, toll charging, nomination submission, public deployment or deletions happen here. A person uses the established external service to send, pay or submit. Returned cars stay cleaning until checked. Money is integer minor units with a currency on every booking. Never add AUD and NZD.
 
-Use migrations for changes, never edit an applied migration. npm test uses a temporary embedded database and never a configured production connection. Treat the demo database as disposable only when the operator confirms it contains no real data. For real use choose a fresh DATA_DIR and run migrate, then import. Do not load demo fixtures into production.
+Use migrations for changes, never edit an applied migration. npm test uses a temporary embedded database by default. CI can set TEST_DATABASE_URL for a disposable localhost rebuild_test database, isolated in a temporary schema. It never uses a configured production connection. Treat the demo database as disposable only when the operator confirms it contains no real data. For real use choose a fresh DATA_DIR and run migrate, then import. Do not load demo fixtures into production.
 
 ## Routing table
 

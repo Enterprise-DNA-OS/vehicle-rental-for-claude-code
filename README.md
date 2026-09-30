@@ -117,7 +117,7 @@ History with actual checkout and return times can be retained. Imported vehicles
 
 ## Checks and scope
 
-npm test creates a temporary database, applies and reruns migrations and seed, exercises all reads and the rental lifecycle, checks refusal paths and import rollback, renders documents and dashboards, and checks CLI output. CI runs the same suite on Windows and Linux. Local execution is on Linux with PGlite. PostgreSQL uses the same SQL through the pg adapter, but a hosted PostgreSQL deployment was not tested here.
+npm test creates a temporary database, applies and reruns migrations and seed, exercises all reads and the rental lifecycle, checks refusal paths and import rollback, renders documents and dashboards, and checks CLI output. CI runs the same suite on Windows and Linux with PGlite and on PostgreSQL 16, including a concurrent-booking check. The PostgreSQL job uses a disposable local database and an isolated schema. No hosted production deployment is part of this build.
 
 Read [compliance sources and boundaries](docs/compliance.md). The NZ evidence checks and service policy are explicit. Australian state-specific rental and infringement requirements need configuration before deployment there. This is not a payment processor, tax ledger, driver-licence validation service or public booking website.
 

@@ -8,7 +8,16 @@ import {migrate} from './migrate.mjs';
 import {run,reads} from './rental.mjs';
 import {parseCsv} from './lib/csv.mjs';
 const temp=fs.mkdtempSync(path.join(os.tmpdir(),'vehicle-rental-'));
-process.env.DATABASE_URL='';process.env.DATA_DIR=path.join(temp,'db');process.env.OUTPUT_DIR=temp;
+const testUrl=process.env.TEST_DATABASE_URL;
+let admin,testSchema;
+if(testUrl){
+ const u=new URL(testUrl);
+ if(!['localhost','127.0.0.1'].includes(u.hostname)||u.pathname!='/rebuild_test')throw Error('TEST_DATABASE_URL must be the disposable local rebuild_test database');
+ const {default:pg}=await import('pg');admin=new pg.Client({connectionString:testUrl});await admin.connect();
+ testSchema='rental_test_'+process.pid+'_'+Date.now();await admin.query(`CREATE SCHEMA ${testSchema}`);
+ process.env.PGOPTIONS=`-c search_path=${testSchema}`;
+}
+process.env.DATABASE_URL=testUrl||'';process.env.DATA_DIR=path.join(temp,'db');process.env.OUTPUT_DIR=temp;
 let db,checks=0;
 const ok=(condition,message)=>{assert.ok(condition,message);checks++;};
 const fail=async(args,re)=>{await assert.rejects(()=>run(db,args),re);checks++;};
@@ -73,6 +82,14 @@ try{
  await run(db,['ready','TEST01','--checked=yes']);
  await run(db,['book','TEST-CANCEL','--vehicle=TEST01','--driver=Test Driver',`--from=${iso(5)}`,`--to=${iso(6)}`]);await run(db,['cancel','TEST-CANCEL']);
  await fail(['extend','TEST-CANCEL',`--to=${iso(7)}`],/open bookings/);
+ if(testUrl){
+  const other=await getDb();
+  try{
+   const from=iso(30),to=iso(31),args=['--vehicle=TEST01','--driver=Test Driver',`--from=${from}`,`--to=${to}`];
+   const results=await Promise.allSettled([run(db,['book','CONCURRENT-A',...args]),run(other,['book','CONCURRENT-B',...args])]);
+   ok(results.filter(r=>r.status==='fulfilled').length===1,'concurrent Postgres booking has one winner');
+  }finally{await other.close();}
+ }
  // CSV shape is a documented mapping contract, not a claimed vendor sample.
  const header='Booking No,Registration,Customer ID,Customer Name,Pickup Date Time,Dropoff Date Time,Pickup Location,Dropoff Location,Daily Rate Cents,Currency,Model,Category,Status,Checkout At,Returned At,Paid Cents,Extras Cents';
  const csv=path.join(temp,'bookings.csv');
@@ -96,5 +113,5 @@ try{
  ok(fs.readFileSync(path.join(temp,'views/week.html'),'utf8').includes('RC-1021'),'dashboard from records');
  ok(fs.readdirSync(path.join(temp,'docs-out/hire-summary')).length>6,'per-booking paperwork');
  const html=fs.readFileSync(path.join(temp,'docs-out/hire-summary',fs.readdirSync(path.join(temp,'docs-out/hire-summary'))[0]),'utf8');ok(html.includes('Koru Coast Rentals')&&html.includes('reviewed terms'),'branded draft');
- console.log(`PASS: ${checks} checks, ${Object.keys(reads).length} read commands, complete rental lifecycle, refusal paths, imports, exports, documents and views.`);
-}finally{await db?.close();fs.rmSync(temp,{recursive:true,force:true});}
+ console.log(`PASS: ${checks} checks (${testUrl?'PostgreSQL':'PGlite'}), ${Object.keys(reads).length} read commands, complete rental lifecycle, refusal paths, imports, exports, documents and views.`);
+}finally{await db?.close();if(admin){await admin.query(`DROP SCHEMA ${testSchema} CASCADE`);await admin.end();}fs.rmSync(temp,{recursive:true,force:true});}
