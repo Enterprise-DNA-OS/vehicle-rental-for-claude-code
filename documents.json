@@ -1,11 +1,93 @@
 [
   {
-    "name": "example",
-    "title": "TODO(author): the first document this industry must produce",
-    "for_each": "select gen_random_uuid() as id, 'Example' as name",
-    "file": "name",
+    "name": "hire-summary",
+    "title": "Hire agreement schedule draft",
+    "for_each": "SELECT id,ref FROM bookings",
+    "file": "ref",
     "sections": [
-      { "title": "Details", "sql": "select 'replace me' as item, $1::text as record_id" }
+      {
+        "title": "Vehicle and hire reference",
+        "note": "Attach your reviewed terms and insurance wording. This schedule alone is not a complete rental agreement. Record delivery of the signed agreement separately.",
+        "sql": "SELECT b.ref,v.plate,v.model FROM bookings b JOIN vehicles v ON v.id=b.vehicle_id WHERE b.id=$1"
+      },
+      {
+        "title": "Hirer contact",
+        "sql": "SELECT d.name,d.address,d.phone,d.dob FROM bookings b JOIN drivers d ON d.id=b.driver_id WHERE b.id=$1"
+      },
+      {
+        "title": "Licence evidence",
+        "sql": "SELECT d.licence_number,d.licence_jurisdiction,d.licence_expires FROM bookings b JOIN drivers d ON d.id=b.driver_id WHERE b.id=$1"
+      },
+      {
+        "title": "Hire period and depots",
+        "sql": "SELECT pickup_at,return_due,pickup_location,return_location FROM bookings WHERE id=$1"
+      },
+      {
+        "title": "Agreed charges",
+        "sql": "SELECT currency,rate_cents,extras_cents,excess_cents FROM bookings WHERE id=$1"
+      },
+      {
+        "title": "Additional authorised drivers",
+        "sql": "SELECT d.name,d.address,d.licence_number,d.licence_jurisdiction,d.licence_expires FROM booking_drivers bd JOIN drivers d ON d.id=bd.driver_id WHERE bd.booking_id=$1"
+      },
+      {
+        "title": "Agreement evidence",
+        "sql": "SELECT agreement_ref,agreement_given_at,insurance_offered_at,terms_reviewed FROM bookings WHERE id=$1"
+      }
+    ]
+  },
+  {
+    "name": "return-condition",
+    "title": "Vehicle return condition record",
+    "for_each": "SELECT id,ref FROM bookings WHERE status='returned'",
+    "file": "ref",
+    "sections": [
+      {
+        "title": "Return record",
+        "sql": "SELECT b.ref,v.plate,b.returned_at,b.km_out,b.km_in,b.fuel_out,b.fuel_in FROM bookings b JOIN vehicles v ON v.id=b.vehicle_id WHERE b.id=$1"
+      },
+      {
+        "title": "Damage and evidence",
+        "sql": "SELECT description,estimated_cents,decision,evidence_ref,decision_note FROM damage WHERE booking_id=$1"
+      },
+      {
+        "title": "Desk notes",
+        "sql": "SELECT created_at,body FROM notes WHERE booking_id=$1 ORDER BY created_at"
+      }
+    ]
+  },
+  {
+    "name": "balance-statement",
+    "title": "Rental balance statement draft",
+    "for_each": "SELECT id,ref FROM bookings WHERE status!='cancelled'",
+    "file": "ref",
+    "sections": [
+      {
+        "title": "Balance",
+        "note": "Not a tax invoice. Verify charges against the agreed terms before sending.",
+        "sql": "SELECT ref,driver,currency,hire_days,total_cents,paid_cents,balance_cents FROM rental_board WHERE id=$1"
+      }
+    ]
+  },
+  {
+    "name": "notice-pack",
+    "title": "Infringement evidence worksheet",
+    "for_each": "SELECT id,notice_ref FROM infringements",
+    "file": "notice_ref",
+    "sections": [
+      {
+        "title": "Notice details",
+        "note": "Internal worksheet. Use the issuing authority form for any nomination or declaration. No nomination or payment is sent.",
+        "sql": "SELECT notice_ref,authority,occurred_at,due_date,status FROM infringements WHERE id=$1"
+      },
+      {
+        "title": "Recorded vehicle custody",
+        "sql": "SELECT b.ref,v.plate,b.checkout_at,b.returned_at FROM infringements i JOIN bookings b ON b.id=i.booking_id JOIN vehicles v ON v.id=b.vehicle_id WHERE i.id=$1"
+      },
+      {
+        "title": "Primary hirer, not proof of who drove",
+        "sql": "SELECT d.name,d.address,d.licence_number FROM infringements i JOIN bookings b ON b.id=i.booking_id JOIN drivers d ON d.id=b.driver_id WHERE i.id=$1"
+      }
     ]
   }
 ]

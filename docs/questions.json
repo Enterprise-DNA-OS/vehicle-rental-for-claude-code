@@ -1,0 +1,42 @@
+[
+  [
+    "Which vehicles are still out after their agreed return time, and where should they come back?",
+    "returns"
+  ],
+  [
+    "Which pickups fall in the next week, including bookings whose pickup was missed?",
+    "pickups"
+  ],
+  [
+    "Which bookings have missing licence checks, agreement evidence or departure inspections?",
+    "compliance"
+  ],
+  [
+    "Which vehicles have an expired inspection, a service due or cleaning still outstanding?",
+    "fleet"
+  ],
+  [
+    "Which damage reports are still waiting for a charge or waiver decision?",
+    "damage"
+  ],
+  [
+    "Which notices need attention this week, alongside late returns and fleet blocks?",
+    "attention"
+  ],
+  [
+    "What remains owing on each returned hire after recorded payments and decided damage?",
+    "balances"
+  ],
+  [
+    "Which cars spent the most time out during the last thirty days?",
+    "utilisation"
+  ],
+  [
+    "Which future bookings have a rate different from the current vehicle rate?",
+    "rate-review"
+  ],
+  [
+    "Which open bookings have no desk note, or no note for more than three days?",
+    "quiet-bookings"
+  ]
+]

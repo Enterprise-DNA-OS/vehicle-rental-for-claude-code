@@ -1,13 +1,37 @@
 [
   {
     "name": "week",
-    "title": "This week",
-    "subtitle": "Vehicle Rental for Claude Code: what needs attention, rendered by npm run view",
+    "title": "The rental week",
+    "subtitle": "Fictional demo unless your records have been imported.",
     "sections": [
       {
-        "title": "Needs attention",
-        "note": "TODO(author): point this at the industry's attention view (overdue, stuck, quiet).",
-        "sql": "select 'replace me' as item, 'TODO(author)' as why"
+        "title": "Pickups and returns",
+        "sql": "SELECT ref,plate,driver,status,pickup_at,return_due,pickup_location,return_location FROM rental_board ORDER BY pickup_at"
+      },
+      {
+        "title": "Decisions due",
+        "sql": "SELECT * FROM attention_queue ORDER BY issue,ref"
+      }
+    ]
+  },
+  {
+    "name": "fleet",
+    "title": "Fleet readiness",
+    "sections": [
+      {
+        "title": "Certificate and service clocks",
+        "sql": "SELECT plate,model,location,status,inspection_expires,registration_expires,service_due,blockers FROM fleet_readiness ORDER BY plate"
+      }
+    ]
+  },
+  {
+    "name": "money",
+    "title": "Rental balances",
+    "sections": [
+      {
+        "title": "Agreed charges and recorded payments",
+        "note": "Estimate only. Whole 24-hour periods, rounded up. Tax treatment follows the entered rate. No payments are processed.",
+        "sql": "SELECT ref,driver,status,currency,total_cents,paid_cents,balance_cents FROM rental_board WHERE status!='cancelled' ORDER BY ref"
       }
     ]
   }

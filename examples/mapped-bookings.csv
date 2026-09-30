@@ -1,0 +1,2 @@
+Booking No,Registration,Customer ID,Customer Name,Pickup Date Time,Dropoff Date Time,Pickup Location,Dropoff Location,Daily Rate Cents,Currency,Model,Category,Status,Checkout At,Returned At,Paid Cents,Extras Cents
+EXAMPLE-1,DEMO999,SAMPLE-C1,Example Guest,2026-12-01T09:00:00+13:00,2026-12-04T09:00:00+13:00,Auckland,Auckland,9500,NZD,Toyota Corolla,Compact,reserved,,,0,0

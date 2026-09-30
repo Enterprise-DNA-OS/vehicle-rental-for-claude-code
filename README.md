@@ -1,115 +1,126 @@
-<h1 align="center">Vehicle Rental for Claude Code</h1>
+# Vehicle Rental for Claude Code
 
-<p align="center">
-  <strong>The open-source car and campervan rental system that is just a database and Claude Code.</strong>
-</p>
+Your fleet, bookings, drivers, damage and rental paperwork in a database you own. Built by Enterprise DNA. MIT licence.
 
-<p align="center">
-  Created by <a href="https://www.enterprisedna.co"><strong>Enterprise DNA</strong></a>. Free and open source. Works with Claude Code, Codex, OpenCode or Cursor.
-</p>
+| Do it yourself | We customise it | We run it for you |
+|---|---|---|
+| Free code. Install it and run your own database. | Your fields, rules, data migration, preferred stack and a web front end if needed. | Installed, connected and operated through Omni by Enterprise DNA. One setup fee, then a retainer. |
+| [Quick start](#quick-start) | [Get your version built](https://enterprisedna.co/omni/book?offer=replace-software&utm_campaign=rental-car-manager) | [Book a call](https://enterprisedna.co/omni/book?offer=replace-software&utm_campaign=rental-car-manager) |
 
-<!-- three-doors -->
-<table align="center">
-  <tr>
-    <td align="center"><strong>Do it yourself</strong><br/>Clone it, run it, own it. Free, MIT.<br/><a href="#quick-start">Quick start</a></td>
-    <td align="center"><strong>We customise it</strong><br/>Your fields, your rules, your Rental Car Manager data brought across.<br/><a href="https://enterprisedna.co/omni/book/?utm_source=github&utm_medium=readme&utm_campaign=rental-car-manager">Book a call</a></td>
-    <td align="center"><strong>We run it for you</strong><br/>Installed, connected and operated inside Omni. Setup fee, then a retainer.<br/><a href="https://enterprisedna.co/omni/instead-of/rental-car-manager?utm_source=github&utm_medium=readme&utm_campaign=rental-car-manager">How it works</a></td>
-  </tr>
-</table>
+Works with Claude Code, Codex, OpenCode or Cursor. Read [AGENTS.md](AGENTS.md).
 
-<p align="center">
-  <a href="#what-is-this">What is this</a> &bull;
-  <a href="#why-no-front-end">Why no front end</a> &bull;
-  <a href="#quick-start">Quick start</a> &bull;
-  <a href="#the-commands">Commands</a> &bull;
-  <a href="#instead-of-rental-car-manager">Instead of Rental Car Manager</a> &bull;
-  <a href="#want-it-installed-and-run-for-you">Installed for you</a> &bull;
-  <a href="#license">License</a>
-</p>
+## What it does
 
-<p align="center">
-  <img src="https://img.shields.io/badge/Node-20+-339933?style=flat-square" alt="Node 20+" />
-  <img src="https://img.shields.io/badge/PostgreSQL-any-336791?style=flat-square" alt="PostgreSQL" />
-  <img src="https://img.shields.io/badge/PGlite-embedded-3ecf8e?style=flat-square" alt="PGlite" />
-  <img src="https://img.shields.io/badge/License-MIT-yellow?style=flat-square" alt="MIT License" />
-</p>
+The rental desk reserves a vehicle at an agreed rate, records driver and agreement checks, handles pickup and return, tracks damage decisions and notice deadlines, and reviews balances. Overlapping reservations fail. The pickup step checks stored licence evidence, agreement delivery, insurance offer, vehicle certificates, service and departure condition. A returned car waits for cleaning before it becomes ready.
 
----
-
-## What is this
-
-Vehicle Rental for Claude Code does the job you pay Rental Car Manager for, as a Postgres database and a set of agent commands. There is no web front end. You open the folder in [Claude Code](https://claude.com/claude-code) (or Codex, OpenCode, Cursor: see `AGENTS.md`) and ask for what you want in plain language. It runs the right query, and it can answer questions the Rental Car Manager dashboard cannot.
-
-<!-- TODO(author): the annual bill. One sentence: what a 10 to 50 person business typically pays Rental Car Manager per year, all in, with a source. -->
-
-Want the same thing with a web front end, or built on a different stack? That is a customisation, and it is exactly what Enterprise DNA does: [book a call](https://enterprisedna.co/omni/book/?utm_source=github&utm_medium=readme&utm_campaign=rental-car-manager).
-
-<!-- TODO(author): two or three sentences on what this specific product covers and who it is for. -->
-
-## Why no front end
-
-- The front end was only ever there because the database was hard to talk to. That is no longer true.
-- Your data sits in plain Postgres tables you own. Any tool can read them. No export, no lock-in.
-- No seats, no tiers, no add-ons. Read [docs/why-no-front-end.md](docs/why-no-front-end.md) for the honest trade-offs too.
+This is a working back-office base. Rental Car Manager also offers online bookings, agent connections, payments and telematics. Those services are not in this free version. Enterprise DNA scopes the connections and screens your operation needs. There is no claim of complete feature parity or of reports the incumbent can never produce.
 
 ## Quick start
 
-Sixty seconds, no database install (an embedded Postgres runs inside Node):
+Node 20 or newer:
 
 ```bash
 git clone https://github.com/Enterprise-DNA-OS/vehicle-rental-for-claude-code.git
 cd vehicle-rental-for-claude-code
 npm install
+npm test
 npm run demo
+npm run view
+npm run docs
 ```
 
-Then open the folder in Claude Code and type a slash command. <!-- TODO(author): name the first command to try. -->
+The demo contains six vehicles, four drivers and six bookings around Auckland and Christchurch. It deliberately includes a late return, a missed service, an expired inspection, missing driver checks, unresolved damage and an approaching notice deadline. All names and records are fictional. Dates are relative to the first seed run. Rerunning seed leaves existing records intact.
 
-### Use it with your own Postgres or Supabase
+Ask `/attention`, `/pickups` or `/weekly-review`. Read the full [CLI recipe](docs/cli.md) for booking and return examples. Money is stored in cents, grouped by currency. Timestamps include an offset and display in UTC.
 
-Copy `.env.example` to `.env`, set `DATABASE_URL`, then `npm run migrate`. Same commands, shared data, no per-seat fee.
+### Real records
+
+Use a fresh DATA_DIR and run npm run migrate, then import. Do not run the demo against real data. An embedded database supports one process at a time. For a shared team use your own PostgreSQL connection in DATABASE_URL, provision least-privilege access, encryption, backups and retention, then run the same migrations. No hosted database was provisioned or connected by this build.
 
 ## The commands
 
-<!-- TODO(author): a table of the slash commands in .claude/commands and what each one does. -->
+- `/attention`: The rental desk decisions.
+- `/fleet`: Fleet readiness.
+- `/board`: The reservation book.
+- `/pickups`: Prepare the pickup desk.
+- `/returns`: Chase overdue returns.
+- `/service-due`: Plan the workshop.
+- `/damage`: Decide the damage register.
+- `/infringements`: Work the notice deadlines.
+- `/balances`: Reconcile rental balances.
+- `/utilisation`: Review fleet use.
+- `/rate-review`: Check agreed rates.
+- `/quiet-bookings`: Follow up quiet bookings.
+- `/drivers`: Review driver records.
+- `/compliance`: Review rental evidence.
+- `/booking`: Read one booking.
+- `/availability`: Answer an availability request.
+- `/book`: Book a vehicle.
+- `/pickup`: Hand over a vehicle.
+- `/return`: Check a vehicle back in.
+- `/log`: Write a desk note.
+- `/draft-return`: Draft a return follow-up.
+- `/import`: Bring bookings across.
+- `/export`: Export the rental records.
+- `/weekly-review`: a Monday draft from attention, utilisation and balances.
+- `/customise`: apply a migration and update the affected workflows.
+- `/new-view`: add a read-only report from a business question.
 
-| Command | What it does |
-|---|---|
-| `/...` | ... |
+Every CLI read accepts --json. Ambiguous names or partial identifiers print candidates and exit 1. [docs/cli.md](docs/cli.md) lists the write recipes. Unknown commands fail.
 
-## Instead of rental-car-manager
+## Paperwork and views
 
-<!-- TODO(author): how to bring data across from Rental Car Manager; link docs/replace-rental-car-manager.md -->
+Change brand.json once. npm run docs renders a hire agreement schedule draft, return condition record, balance statement and infringement evidence worksheet. Hire schedules require your reviewed terms, operator details, insurance wording and signature process before use. An evidence worksheet is not a statutory declaration. No output sends itself.
 
-## Architecture
+npm run view renders the rental week, fleet readiness and balances as read-only HTML. [Why no front end](docs/why-no-front-end.md) explains mobile, offline and booking-channel limits.
 
+## Ten questions you can ask today
+
+These are supported queries, not a claim that Rental Car Manager cannot build similar reports.
+
+1. Which vehicles are still out after their agreed return time, and where should they come back? (`returns`)
+2. Which pickups fall in the next week, including bookings whose pickup was missed? (`pickups`)
+3. Which bookings have missing licence checks, agreement evidence or departure inspections? (`compliance`)
+4. Which vehicles have an expired inspection, a service due or cleaning still outstanding? (`fleet`)
+5. Which damage reports are still waiting for a charge or waiver decision? (`damage`)
+6. Which notices need attention this week, alongside late returns and fleet blocks? (`attention`)
+7. What remains owing on each returned hire after recorded payments and decided damage? (`balances`)
+8. Which cars spent the most time out during the last thirty days? (`utilisation`)
+9. Which future bookings have a rate different from the current vehicle rate? (`rate-review`)
+10. Which open bookings have no desk note, or no note for more than three days? (`quiet-bookings`)
+
+## Your first hour: ten things to ask for
+
+1. Put our business name, logo and colours on the paperwork.
+2. Rename the vehicle categories to match our fleet.
+3. Add our actual depot names.
+4. Map our Rental Car Manager booking export.
+5. Add a field for an arrival flight number.
+6. Change the cleaning checklist to our procedure.
+7. Add a workshop evidence reference to each service.
+8. Set the notice reminder window to our internal policy.
+9. Add a report for pickups at one depot.
+10. Review our state or country rules and add the checks we actually need.
+
+/customise writes a new migration, applies it and runs the tests. It does not replace a current legal review or remove pickup checks.
+
+## Switching from Rental Car Manager
+
+The vendor confirms report exports to CSV, Excel and PDF. Export booking details, map the columns once, then import with one command. The format includes vehicle and customer fields, so new vehicles and drivers can be created in the same transaction. Exact report headers vary and no real customer export was provided for this build. The [switch guide](docs/replace-rental-car-manager.md) documents every required field and the checks before cutover.
+
+```bash
+npm run rental -- import rental-car-manager mapped-bookings.csv --dry-run
+npm run rental -- import rental-car-manager mapped-bookings.csv
 ```
-vehicle-rental-for-claude-code/
-  CLAUDE.md                 how the operator wants this run (routing table + house rules)
-  AGENTS.md                 the same, for Codex / OpenCode / Cursor / Gemini CLI
-  .claude/commands/         the slash commands
-  scripts/                  the CLI the commands drive
-  scripts/lib/db.mjs        one adapter: DATABASE_URL (pg) or embedded PGlite
-  supabase/migrations/      plain SQL schema
-  supabase/seed.sql         demo data
-  docs/                     the thesis and the migration guide
-```
 
-## Built for coding agents
+History with actual checkout and return times can be retained. Imported vehicles remain blocked pending real preparation and certificate checks. Payment tokens, signatures, photos and external booking feeds require separate migration or connection. Keep the original exports and documents.
 
-The database, CLI and command recipes work with Claude Code, Codex, OpenCode or Cursor. Ask your coding agent for a new command and have it implement and test the change against the same records.
+## Checks and scope
 
-## Contributing
+npm test creates a temporary database, applies and reruns migrations and seed, exercises all reads and the rental lifecycle, checks refusal paths and import rollback, renders documents and dashboards, and checks CLI output. CI runs the same suite on Windows and Linux. Local execution is on Linux with PGlite. PostgreSQL uses the same SQL through the pg adapter, but a hosted PostgreSQL deployment was not tested here.
 
-Issues and pull requests are welcome. Keep the shape: plain SQL, a small CLI, a slash command per recurring job, no front end.
+Read [compliance sources and boundaries](docs/compliance.md). The NZ evidence checks and service policy are explicit. Australian state-specific rental and infringement requirements need configuration before deployment there. This is not a payment processor, tax ledger, driver-licence validation service or public booking website.
 
-## Want it installed and run for you?
+## Ownership
 
-Enterprise DNA installs Vehicle Rental for Claude Code for your business, migrates your Rental Car Manager data, connects it to the rest of your tools, and runs it for you as part of **Omni**, our managed Command Center. One setup fee, then a monthly retainer.
-
-- Book a call: [enterprisedna.co/omni/book](https://enterprisedna.co/omni/book/?offer=replace-software&utm_source=github&utm_medium=readme&utm_campaign=rental-car-manager)
-- Read more: [enterprisedna.co/omni/instead-of/rental-car-manager](https://enterprisedna.co/omni/instead-of/rental-car-manager?utm_source=github&utm_medium=readme&utm_campaign=rental-car-manager)
-
-## License
-
-MIT. Copyright (c) 2026 Enterprise DNA.
+MIT licence. Your database stays yours. Agent subscriptions, hosting and operations are separate costs. Enterprise DNA can build and run your version through Omni by Enterprise DNA: [30 minutes with Sam](https://enterprisedna.co/omni/book?offer=replace-software&utm_campaign=rental-car-manager).
